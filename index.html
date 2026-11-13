@@ -892,7 +892,7 @@ async function executeMove(p) {
     gameState = 'arrived';
     $('status').innerHTML = '장소를 보고 <strong>먼저 말해 보세요.</strong>';
     $('status').className = 'status state-b';
-    revealBtn.disabled = mode !== 'speaking';
+    revealBtn.disabled = mode === 'speaking';
     speakBtn.disabled = false;
     micBtn.disabled = mode !== 'speaking';
     moveBtn.disabled = true; 
@@ -917,7 +917,7 @@ function doReveal() {
   $('question').innerHTML = `<span class="answer-card">${p.name}에 가요.</span>`;
   
   if (visits > 0 && visits % places.length === 0) {
-    $('status').innerHTML = '🎉 <strong>${places.length}곳 모두 방문했어요!</strong> 다음은 새로운 순서로 시작됩니다.';
+    $('status').innerHTML = `🎉 <strong>${places.length}곳 모두 방문했어요!</strong> 다음은 새로운 순서로 시작됩니다.`;
   } else {
     $('status').innerHTML = '정답을 확인하고, 문장으로 한 번 더 말해 보세요.';
   }
