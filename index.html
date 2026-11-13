@@ -93,6 +93,59 @@ kbd { font: inherit; border: 1px solid #d9e0d2; border-radius: 4px; padding: 2px
   .action { padding: 15px 18px; font-size: 15px; }
   .btn-icon { padding: 15px; font-size: 18px; }
 }
+
+/* 스마트폰 전용: 지도와 조작부를 한 화면에 표시 */
+@media (max-width: 900px) and (orientation: portrait) {
+  main { padding: 10px 10px 12px; width: 100%; }
+  .top { gap: 8px; margin-bottom: 8px; }
+  .kicker { font-size: 9px; margin-bottom: 2px; }
+  h1 { font-size: 19px; }
+  .settings { width: 100%; gap: 6px; justify-content: space-between; }
+  .mode-toggle { flex: 1; min-width: 0; }
+  .mode-toggle label { flex: 1; text-align: center; padding: 8px 2px; font-size: 10px; white-space: nowrap; }
+  .small { padding: 8px 9px; font-size: 11px; }
+  .map-frame { border-radius: 12px; }
+  .map-scroll { overflow-x: hidden; }
+  .town-wrap { min-width: 0; width: 100%; }
+  #town { width: 100%; height: auto; }
+  .panel { grid-template-columns: minmax(0,1fr); gap: 8px; padding: 10px 2px 8px; }
+  .panel > div:first-child { min-width: 0; }
+  .status { font-size: 12px; margin-bottom: 4px; overflow-wrap: anywhere; }
+  .question { font-size: 23px; min-height: 30px; white-space: normal; overflow-wrap: normal; word-break: keep-all; }
+  .actions { width: 100%; gap: 5px; flex-wrap: wrap; }
+  .count { min-width: 52px; padding: 7px 5px; font-size: 12px; margin-right: auto; }
+  .action { padding: 10px 9px; border-radius: 10px; font-size: 12px; white-space: nowrap; }
+  .btn-icon { padding: 9px; font-size: 16px; }
+  .primary { min-width: 86px; }
+  .bottom { padding-top: 8px; font-size: 10px; gap: 6px; }
+}
+@media (max-width: 1000px) and (orientation: landscape) and (max-height: 650px) {
+  html, body { margin: 0; }
+  main { padding: 4px 10px; max-width: none; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+  .top { flex: 0 0 auto; flex-wrap: nowrap; gap: 8px; margin-bottom: 4px; min-height: 31px; }
+  .top > div:first-child { min-width: 0; flex-shrink: 1; }
+  .kicker { display: none; }
+  h1 { font-size: 15px; white-space: nowrap; }
+  .settings { gap: 5px; flex-wrap: nowrap; }
+  .mode-toggle label { padding: 6px 7px; font-size: 10px; white-space: nowrap; }
+  .small { padding: 6px 8px; font-size: 10px; white-space: nowrap; }
+  .map-frame { flex: 1 1 auto; min-height: 0; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+  .map-scroll { width: 100%; height: 100%; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .town-wrap { min-width: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
+  #town { width: 100%; height: 100%; object-fit: contain; }
+  .panel { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 5px 2px; }
+  .panel > div:first-child { min-width: 0; flex: 1 1 auto; }
+  .status { font-size: 10px; margin-bottom: 1px; white-space: normal; }
+  .question { font-size: 17px; min-height: 22px; white-space: nowrap; }
+  .actions { flex: 0 0 auto; gap: 5px; }
+  .count { font-size: 11px; min-width: 50px; padding: 5px; margin: 0; }
+  .action { padding: 7px 9px; font-size: 11px; border-radius: 9px; white-space: nowrap; }
+  .btn-icon { padding: 6px 8px; font-size: 14px; }
+  .primary { min-width: 80px; }
+  .bottom { flex: 0 0 auto; padding-top: 3px; gap: 4px; font-size: 9px; min-height: 17px; }
+  .bottom kbd { padding: 0 3px; }
+}
+
 @media(prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
@@ -550,7 +603,7 @@ function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.fl
 function nextIndex() { if (!bag.length) { bag = shuffle(places.map((_, i) => i)); if (bag.at(-1) === current) { [bag[0], bag[bag.length - 1]] = [bag.at(-1), bag[0]]; } } return bag.pop(); }
 function clearMap() { document.querySelectorAll('.destination').forEach(el => el.classList.remove('active', 'revealed')); }
 
-function follow(p) { const box = $('mapScroll'), w = $('town').getBoundingClientRect().width; const x = (p.signX + 46) / 1600 * w; box.scrollTo({ left: Math.max(0, x - box.clientWidth / 2), behavior: reduced.matches ? 'auto' : 'smooth' }); }
+function follow(p) { if (window.matchMedia('(max-width: 900px) and (orientation: portrait), (max-width: 1000px) and (orientation: landscape) and (max-height: 650px)').matches) return; const box = $('mapScroll'), w = $('town').getBoundingClientRect().width; const x = (p.signX + 46) / 1600 * w; box.scrollTo({ left: Math.max(0, x - box.clientWidth / 2), behavior: reduced.matches ? 'auto' : 'smooth' }); }
 
 const UPPER_WALK = 355, LOWER_WALK = 466, SHOP_FRONT = 734;
 const CROSSWALKS = [319, 1210];
