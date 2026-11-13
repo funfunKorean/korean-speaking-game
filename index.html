@@ -54,6 +54,17 @@ body.mode-icon .place-name, body.mode-listen .place-name { opacity: 0; }
 body.mode-icon .destination.revealed .place-name, 
 body.mode-listen .destination.revealed .place-name { opacity: 1; transition: opacity 0.3s; }
 
+
+/* 목표 지점: 빨간색·흰색 이중 테두리와 움직이는 화살표 */
+.destination .target-marker { display: none; pointer-events: none; }
+.destination.active .target-marker,
+.destination.revealed .target-marker { display: block; }
+.target-outline-white { fill: none; stroke: #fff; stroke-width: 11; }
+.target-outline-red { fill: none; stroke: #ec1731; stroke-width: 6; }
+.target-arrow { fill: #ec1731; stroke: #fff; stroke-width: 3; stroke-linejoin: round; animation: target-bounce 0.85s ease-in-out infinite alternate; }
+@keyframes target-bounce { from { transform: translateY(-9px); } to { transform: translateY(2px); } }
+@media (prefers-reduced-motion: reduce) { .target-arrow { animation: none; } }
+
 /* 캐릭터 관련 */
 .person { transform-box: fill-box; transform-origin: center bottom; transition: transform 0.15s ease-out; transform: scale(1.25); }
 .person-shadow { fill: #3a4d45; opacity: 0.25; transition: transform 0.15s; }
@@ -601,6 +612,32 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 
 function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 function nextIndex() { if (!bag.length) { bag = shuffle(places.map((_, i) => i)); if (bag.at(-1) === current) { [bag[0], bag[bag.length - 1]] = [bag.at(-1), bag[0]]; } } return bag.pop(); }
+
+// 건물의 실제 간판 크기에 맞춰 강조 표시를 자동으로 생성합니다.
+// 활성화된 목적지에서만 보이므로 듣고 찾기 정답을 미리 노출하지 않습니다.
+(function installTargetMarkers() {
+  const ns = 'http://www.w3.org/2000/svg';
+  const make = (tag, attrs) => {
+    const node = document.createElementNS(ns, tag);
+    Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
+    return node;
+  };
+  document.querySelectorAll('.destination').forEach(place => {
+    const sign = place.querySelector('.sign-face');
+    if (!sign) return;
+    const b = sign.getBBox();
+    const x = b.x - 5, y = b.y - 5, w = b.width + 10, h = b.height + 10;
+    const marker = make('g', {'class': 'target-marker', 'aria-hidden': 'true'});
+    marker.appendChild(make('rect', {'class':'target-outline-white', x, y, width:w, height:h, rx:8}));
+    marker.appendChild(make('rect', {'class':'target-outline-red', x, y, width:w, height:h, rx:8}));
+    const center = b.x + b.width / 2;
+    const tip = y - 10;
+    const arrow = make('path', {'class':'target-arrow', d:`M ${center-15} ${tip-28} H ${center+15} V ${tip-16} H ${center+24} L ${center} ${tip+1} L ${center-24} ${tip-16} H ${center-15} Z`});
+    marker.appendChild(arrow);
+    place.appendChild(marker);
+  });
+})();
+
 function clearMap() { document.querySelectorAll('.destination').forEach(el => el.classList.remove('active', 'revealed')); }
 
 function follow(p) { if (window.matchMedia('(max-width: 900px) and (orientation: portrait), (max-width: 1000px) and (orientation: landscape) and (max-height: 650px)').matches) return; const box = $('mapScroll'), w = $('town').getBoundingClientRect().width; const x = (p.signX + 46) / 1600 * w; box.scrollTo({ left: Math.max(0, x - box.clientWidth / 2), behavior: reduced.matches ? 'auto' : 'smooth' }); }
